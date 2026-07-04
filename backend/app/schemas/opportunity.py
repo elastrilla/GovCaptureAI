@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class OpportunityCreate(BaseModel):
@@ -20,6 +20,11 @@ class OpportunityStatusUpdate(BaseModel):
     status: str
 
 
+class OpportunityScoreUpdate(BaseModel):
+    score: int = Field(..., ge=1, le=10)
+    rationale: str | None = None
+
+
 class OpportunityRead(BaseModel):
     id: int
     sam_notice_id: str | None = None
@@ -32,6 +37,8 @@ class OpportunityRead(BaseModel):
     due_date: date | None = None
     status: str
     description: str | None = None
+    qualification_score: int | None = None
+    qualification_rationale: str | None = None
     created_at: datetime
 
     class Config:

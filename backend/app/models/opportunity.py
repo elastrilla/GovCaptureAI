@@ -25,4 +25,7 @@ class Opportunity(Base):
     status: Mapped[str] = mapped_column(String(50), default="new", nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    qualification_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    qualification_rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

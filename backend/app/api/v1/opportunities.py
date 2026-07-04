@@ -6,6 +6,7 @@ from app.models.opportunity import Opportunity
 from app.schemas.opportunity import (
     OpportunityCreate,
     OpportunityRead,
+    OpportunityScoreUpdate,
     OpportunityStatusUpdate,
 )
 
@@ -94,6 +95,30 @@ def update_opportunity_status(
         raise HTTPException(status_code=404, detail="Opportunity not found")
 
     opportunity.status = new_status
+
+    db.commit()
+    db.refresh(opportunity)
+
+    return opportunity
+
+
+@router.post("/{opportunity_id}/score", response_model=OpportunityRead)
+def score_opportunity(
+    opportunity_id: int,
+    score_update: OpportunityScoreUpdate,
+    db: Session = Depends(get_db),
+):
+    opportunity = (
+        db.query(Opportunity)
+        .filter(Opportunity.id == opportunity_id)
+        .first()
+    )
+
+    if not opportunity:
+        raise HTTPException(status_code=404, detail="Opportunity not found")
+
+    opportunity.qualification_score = score_update.score
+    opportunity.qualification_rationale = score_update.rationale
 
     db.commit()
     db.refresh(opportunity)
