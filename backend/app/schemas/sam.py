@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class SamSearchRequest(BaseModel):
@@ -6,6 +6,15 @@ class SamSearchRequest(BaseModel):
     naics_code: str | None = None
     agency: str | None = None
     set_aside: str | None = None
+    posted_from: str | None = Field(
+        default=None,
+        description="Start posted date in MM/DD/YYYY format"
+    )
+    posted_to: str | None = Field(
+        default=None,
+        description="End posted date in MM/DD/YYYY format"
+    )
+    limit: int = Field(default=10, ge=1, le=100)
 
 
 class SamOpportunityResult(BaseModel):

@@ -1,7 +1,9 @@
+from app.core.config import settings
+from app.sam.client import search_sam_live
 from app.schemas.sam import SamSearchRequest, SamOpportunityResult, SamSearchResponse
 
 
-def search_sam_opportunities(search_request: SamSearchRequest) -> SamSearchResponse:
+def search_sam_mock(search_request: SamSearchRequest) -> SamSearchResponse:
     mock_results = [
         SamOpportunityResult(
             sam_notice_id="SAM-MOCK-001",
@@ -62,3 +64,10 @@ def search_sam_opportunities(search_request: SamSearchRequest) -> SamSearchRespo
         count=len(filtered_results),
         results=filtered_results,
     )
+
+
+def search_sam_opportunities(search_request: SamSearchRequest) -> SamSearchResponse:
+    if settings.SAM_API_MODE.lower() == "live":
+        return search_sam_live(search_request)
+
+    return search_sam_mock(search_request)
