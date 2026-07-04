@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     DATABASE_USER: str = "enriquelastrilla"
     DATABASE_PASSWORD: str = ""
 
+    SAM_API_KEY: str = ""
+    SAM_API_BASE_URL: str = "https://api.sam.gov/opportunities/v2/search"
+    SAM_API_MODE: str = "mock"
+
     @property
     def database_url(self) -> str:
         if self.DATABASE_PASSWORD:

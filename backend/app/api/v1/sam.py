@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.database.session import get_db
 from app.models.opportunity import Opportunity
+from app.sam.client import test_sam_api_connection
 from app.sam.service import search_sam_opportunities
 from app.schemas.sam import SamSearchRequest, SamSearchResponse
 
@@ -15,8 +17,13 @@ def sam_test():
     return {
         "status": "ok",
         "service": "SAM.gov search module",
-        "mode": "mock",
+        "mode": settings.SAM_API_MODE,
     }
+
+
+@router.get("/live-test")
+def sam_live_test():
+    return test_sam_api_connection()
 
 
 @router.post("/search", response_model=SamSearchResponse)
