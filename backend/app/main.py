@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 
+from app.api.v1.companies import router as companies_router
+from app.api.v1.opportunities import router as opportunities_router
 from app.core.config import settings
 from app.database.session import engine
 
@@ -9,6 +11,10 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
 )
+
+
+app.include_router(companies_router, prefix="/api/v1")
+app.include_router(opportunities_router, prefix="/api/v1")
 
 
 @app.get("/")
