@@ -16,6 +16,10 @@ class OpportunityCreate(BaseModel):
     description: str | None = None
 
 
+class OpportunityStatusUpdate(BaseModel):
+    status: str
+
+
 class OpportunityRead(BaseModel):
     id: int
     sam_notice_id: str | None = None
