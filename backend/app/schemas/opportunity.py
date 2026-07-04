@@ -25,6 +25,20 @@ class OpportunityScoreUpdate(BaseModel):
     rationale: str | None = None
 
 
+class OpportunitySummary(BaseModel):
+    total: int
+    new: int
+    reviewing: int
+    pursuing: int
+    no_bid: int
+    drafting: int
+    submitted: int
+    won: int
+    lost: int
+    closed: int
+    average_score: float | None = None
+
+
 class OpportunityRead(BaseModel):
     id: int
     sam_notice_id: str | None = None

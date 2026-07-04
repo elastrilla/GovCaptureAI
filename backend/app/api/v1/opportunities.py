@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
@@ -8,6 +9,7 @@ from app.schemas.opportunity import (
     OpportunityRead,
     OpportunityScoreUpdate,
     OpportunityStatusUpdate,
+    OpportunitySummary,
 )
 
 
@@ -52,6 +54,36 @@ def create_opportunity(opportunity: OpportunityCreate, db: Session = Depends(get
 @router.get("/", response_model=list[OpportunityRead])
 def list_opportunities(db: Session = Depends(get_db)):
     return db.query(Opportunity).order_by(Opportunity.id).all()
+
+
+@router.get("/summary", response_model=OpportunitySummary)
+def get_opportunity_summary(db: Session = Depends(get_db)):
+    total = db.query(Opportunity).count()
+
+    status_counts = {
+        status: db.query(Opportunity).filter(Opportunity.status == status).count()
+        for status in VALID_STATUSES
+    }
+
+    average_score = (
+        db.query(func.avg(Opportunity.qualification_score))
+        .filter(Opportunity.qualification_score.isnot(None))
+        .scalar()
+    )
+
+    return OpportunitySummary(
+        total=total,
+        new=status_counts["new"],
+        reviewing=status_counts["reviewing"],
+        pursuing=status_counts["pursuing"],
+        no_bid=status_counts["no_bid"],
+        drafting=status_counts["drafting"],
+        submitted=status_counts["submitted"],
+        won=status_counts["won"],
+        lost=status_counts["lost"],
+        closed=status_counts["closed"],
+        average_score=float(average_score) if average_score is not None else None,
+    )
 
 
 @router.get("/{opportunity_id}", response_model=OpportunityRead)
