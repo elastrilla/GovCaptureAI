@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 from sqlalchemy import Date, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
@@ -14,6 +14,7 @@ class Opportunity(Base):
     sam_notice_id: Mapped[str | None] = mapped_column(String(255), unique=True, index=True, nullable=True)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     solicitation_number: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    notice_type: Mapped[str | None] = mapped_column(String(100), index=True, nullable=True)
 
     agency: Mapped[str | None] = mapped_column(String(255), nullable=True)
     naics_code: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)
@@ -23,9 +24,11 @@ class Opportunity(Base):
     due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     status: Mapped[str] = mapped_column(String(50), default="new", nullable=False)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     qualification_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    qualification_recommendation: Mapped[str | None] = mapped_column(String(50), nullable=True)
     qualification_rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC), nullable=False)

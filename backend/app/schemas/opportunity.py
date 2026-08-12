@@ -1,18 +1,20 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class OpportunityCreate(BaseModel):
     sam_notice_id: str | None = None
     title: str
     solicitation_number: str | None = None
+    notice_type: str | None = None
     agency: str | None = None
     naics_code: str | None = None
     set_aside: str | None = None
     posted_date: date | None = None
     due_date: date | None = None
     status: str = "new"
+    summary: str | None = None
     description: str | None = None
 
 
@@ -22,7 +24,12 @@ class OpportunityStatusUpdate(BaseModel):
 
 class OpportunityScoreUpdate(BaseModel):
     score: int = Field(..., ge=1, le=10)
+    recommendation: str | None = None
     rationale: str | None = None
+
+
+class OpportunityAutoScoreRequest(BaseModel):
+    company_id: int
 
 
 class OpportunitySummary(BaseModel):
@@ -40,20 +47,22 @@ class OpportunitySummary(BaseModel):
 
 
 class OpportunityRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     sam_notice_id: str | None = None
     title: str
     solicitation_number: str | None = None
+    notice_type: str | None = None
     agency: str | None = None
     naics_code: str | None = None
     set_aside: str | None = None
     posted_date: date | None = None
     due_date: date | None = None
     status: str
+    summary: str | None = None
     description: str | None = None
     qualification_score: int | None = None
+    qualification_recommendation: str | None = None
     qualification_rationale: str | None = None
     created_at: datetime
-
-    class Config:
-        from_attributes = True

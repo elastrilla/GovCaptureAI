@@ -4,3 +4,24 @@ __pycache__/
 *.pyc
 .DS_Store
 logs/
+
+# Local/generated workspace scratch.
+.codex_tmp/
+outputs/
+*.inspect.ndjson
+
+# Keep CMMC readiness/client-sensitive work out of the GovCaptureAI repo.
+# CMMCReadinessAI should live in its own private repository or local workspace.
+CMMCReadinessAI/
+
+# Never commit secrets or customer evidence.
+*.env
+*.secrets
+*.key
+*.pem
+*.p12
+*.pfx
+client_artifacts/
+evidence/
+exports/
+uploads/

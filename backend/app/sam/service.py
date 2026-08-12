@@ -9,22 +9,26 @@ def search_sam_mock(search_request: SamSearchRequest) -> SamSearchResponse:
             sam_notice_id="SAM-MOCK-001",
             title="Cybersecurity Support Services",
             solicitation_number="RFP-2026-001",
+            notice_type="RFP",
             agency="Department of Veterans Affairs",
             naics_code="541512",
             set_aside="SDVOSB",
             posted_date="2026-07-04",
             due_date="2026-08-04",
+            summary="Cybersecurity and IT support services for a federal mission customer.",
             description="Mock opportunity for cybersecurity and IT support services.",
         ),
         SamOpportunityResult(
             sam_notice_id="SAM-MOCK-002",
             title="Cloud Migration and Infrastructure Support",
             solicitation_number="RFQ-2026-002",
+            notice_type="RFQ",
             agency="Department of Defense",
             naics_code="541513",
             set_aside="Small Business",
             posted_date="2026-07-04",
             due_date="2026-08-10",
+            summary="Cloud infrastructure modernization and migration support services.",
             description="Mock opportunity for cloud infrastructure modernization.",
         ),
     ]
@@ -57,6 +61,13 @@ def search_sam_mock(search_request: SamSearchRequest) -> SamSearchResponse:
         filtered_results = [
             result for result in filtered_results
             if set_aside in (result.set_aside or "").lower()
+        ]
+
+    if search_request.notice_type:
+        notice_type = search_request.notice_type.lower()
+        filtered_results = [
+            result for result in filtered_results
+            if notice_type in (result.notice_type or "").lower()
         ]
 
     return SamSearchResponse(

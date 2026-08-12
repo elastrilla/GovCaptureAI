@@ -16,6 +16,13 @@ def _default_posted_dates() -> tuple[str, str]:
     )
 
 
+def _first_non_empty(*values):
+    for value in values:
+        if value not in (None, ""):
+            return value
+    return None
+
+
 def _safe_get(data: dict, *keys, default=None):
     current = data
 
@@ -27,74 +34,155 @@ def _safe_get(data: dict, *keys, default=None):
     return current if current is not None else default
 
 
+def _extract_opportunities_data(data: dict) -> list[dict]:
+    candidates = (
+        data.get("opportunitiesData"),
+        data.get("opportunities"),
+        data.get("data"),
+        data.get("results"),
+    )
+
+    for candidate in candidates:
+        if isinstance(candidate, list):
+            return candidate
+
+    return []
+
+
+def _infer_notice_type(*values):
+    text = " ".join(str(value) for value in values if value).upper()
+
+    if "SOURCES SOUGHT" in text or "SOURCE SOUGHT" in text:
+        return "Sources Sought"
+
+    for notice_type in ("RFI", "RFQ", "RFP"):
+        if notice_type in text.replace("_", "-").replace("/", "-").split("-"):
+            return notice_type
+        if f" {notice_type} " in f" {text} ":
+            return notice_type
+
+    return None
+
+
+def _build_short_summary(
+    title: str | None,
+    agency: str | None,
+    notice_type: str | None,
+    description: str | None,
+) -> str:
+    description_text = str(description or "").strip()
+    if description_text and not description_text.startswith("http"):
+        normalized = " ".join(description_text.split())
+        return normalized[:277] + "..." if len(normalized) > 280 else normalized
+
+    parts = [
+        f"{notice_type} opportunity" if notice_type else "Opportunity",
+        f"for {title}" if title else None,
+        f"from {agency}" if agency else None,
+    ]
+
+    return " ".join(part for part in parts if part) + "."
+
+
 def parse_sam_opportunity(item: dict) -> SamOpportunityResult:
-    notice_id = (
-        item.get("noticeId")
-        or item.get("notice_id")
-        or item.get("id")
-        or item.get("solicitationNumber")
-        or "UNKNOWN-NOTICE-ID"
+    notice_id = _first_non_empty(
+        item.get("noticeId"),
+        item.get("notice_id"),
+        item.get("id"),
+        item.get("solicitationNumber"),
+        "UNKNOWN-NOTICE-ID",
     )
 
-    title = (
-        item.get("title")
-        or item.get("opportunityTitle")
-        or "Untitled SAM.gov Opportunity"
+    title = _first_non_empty(
+        item.get("title"),
+        item.get("opportunityTitle"),
+        _safe_get(item, "title", "value"),
+        "Untitled SAM.gov Opportunity",
     )
 
-    solicitation_number = (
-        item.get("solicitationNumber")
-        or item.get("solicitation_number")
+    solicitation_number = _first_non_empty(
+        item.get("solicitationNumber"),
+        item.get("solicitation_number"),
+        _safe_get(item, "solicitation", "number"),
     )
 
-    agency = (
-        item.get("fullParentPathName")
-        or item.get("department")
-        or item.get("subTier")
-        or item.get("office")
-        or _safe_get(item, "organizationHierarchy", "department", "name")
+    notice_type = _first_non_empty(
+        item.get("type"),
+        item.get("noticeType"),
+        item.get("notice_type"),
+        item.get("typeOfNotice"),
+        item.get("opportunityType"),
+        _safe_get(item, "notice", "type"),
+        _safe_get(item, "classification", "noticeType"),
+        _infer_notice_type(
+            item.get("solicitationNumber"),
+            item.get("solicitation_number"),
+            item.get("title"),
+            item.get("opportunityTitle"),
+            item.get("description"),
+            item.get("synopsis"),
+        ),
     )
 
-    naics_code = (
-        item.get("naicsCode")
-        or item.get("naics")
-        or _safe_get(item, "classification", "naicsCode")
+    agency = _first_non_empty(
+        item.get("fullParentPathName"),
+        item.get("department"),
+        item.get("subTier"),
+        item.get("office"),
+        _safe_get(item, "organizationHierarchy", "department", "name"),
+        _safe_get(item, "organizationHierarchy", "topLevelAgency", "name"),
     )
 
-    set_aside = (
-        item.get("typeOfSetAside")
-        or item.get("typeOfSetAsideDescription")
-        or item.get("setAside")
+    naics_code = _first_non_empty(
+        item.get("naicsCode"),
+        item.get("naics"),
+        _safe_get(item, "classification", "naicsCode"),
+        _safe_get(item, "classification", "naics", "code"),
     )
 
-    posted_date = (
-        item.get("postedDate")
-        or item.get("posted_date")
+    set_aside = _first_non_empty(
+        _safe_get(item, "typeOfSetAside", "description"),
+        item.get("typeOfSetAsideDescription"),
+        item.get("setAside"),
+        item.get("typeOfSetAside"),
     )
 
-    due_date = (
-        item.get("responseDeadLine")
-        or item.get("responseDeadline")
-        or item.get("dueDate")
-        or item.get("archiveDate")
+    posted_date = _first_non_empty(
+        item.get("postedDate"),
+        item.get("posted_date"),
+        _safe_get(item, "dates", "posted"),
     )
 
-    description = (
-        item.get("description")
-        or item.get("synopsis")
-        or item.get("additionalInfoLink")
-        or item.get("uiLink")
+    due_date = _first_non_empty(
+        item.get("responseDeadLine"),
+        item.get("responseDeadline"),
+        item.get("dueDate"),
+        item.get("archiveDate"),
+        _safe_get(item, "dates", "responseDeadline"),
     )
+
+    description = _first_non_empty(
+        item.get("description"),
+        item.get("synopsis"),
+        item.get("additionalInfoLink"),
+        item.get("uiLink"),
+        _safe_get(item, "links", "ui"),
+        _safe_get(item, "links", "details"),
+    )
+
+    summary = _build_short_summary(title, agency, notice_type, description)
 
     return SamOpportunityResult(
         sam_notice_id=str(notice_id),
         title=str(title),
         solicitation_number=solicitation_number,
+        notice_type=notice_type,
         agency=agency,
         naics_code=str(naics_code) if naics_code is not None else None,
         set_aside=set_aside,
         posted_date=posted_date,
         due_date=due_date,
+        summary=summary,
         description=description,
     )
 
@@ -135,7 +223,7 @@ def search_sam_live(search_request: SamSearchRequest) -> SamSearchResponse:
     response.raise_for_status()
 
     data = response.json()
-    raw_results = data.get("opportunitiesData", [])
+    raw_results = _extract_opportunities_data(data)
 
     parsed_results = [
         parse_sam_opportunity(item)
@@ -147,6 +235,13 @@ def search_sam_live(search_request: SamSearchRequest) -> SamSearchResponse:
         parsed_results = [
             result for result in parsed_results
             if agency_filter in (result.agency or "").lower()
+        ]
+
+    if search_request.notice_type:
+        notice_type_filter = search_request.notice_type.lower()
+        parsed_results = [
+            result for result in parsed_results
+            if notice_type_filter in (result.notice_type or "").lower()
         ]
 
     return SamSearchResponse(

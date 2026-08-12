@@ -1,0 +1,54 @@
+version: "2.1"
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: govcaptureai-db
+    environment:
+      POSTGRES_DB: govcaptureai
+      POSTGRES_USER: govcaptureai
+      POSTGRES_PASSWORD: govcaptureai_dev_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U govcaptureai -d govcaptureai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: govcaptureai-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: govcaptureai
+      DATABASE_USER: govcaptureai
+      DATABASE_PASSWORD: govcaptureai_dev_password
+      DEMO_RESET_ENABLED: ${DEMO_RESET_ENABLED:-false}
+      SAM_API_MODE: ${SAM_API_MODE:-mock}
+      SAM_API_KEY: ${SAM_API_KEY:-}
+      SAM_API_BASE_URL: ${SAM_API_BASE_URL:-https://api.sam.gov/opportunities/v2/search}
+      CORS_ORIGINS: '["http://127.0.0.1:8001","http://localhost:8001","null"]'
+      CORS_ORIGIN_REGEX: "^http://.*:8001$$"
+      LLM_ROUTER_URL: "http://192.168.1.53:8080"
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: govcaptureai-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8001:80"
+
+volumes:
+  postgres_data:

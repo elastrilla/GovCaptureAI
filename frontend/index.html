@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="govcaptureai-build" content="13c-company-award" />
+    <title>GovCaptureAI Dashboard</title>
+    <link rel="stylesheet" href="./styles.css?v=13c-company-award" />
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar" aria-label="GovCaptureAI workspace">
+        <div class="brand">
+          <span class="brand-mark">G</span>
+          <div>
+            <strong>GovCaptureAI</strong>
+            <span>Capture workspace</span>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Primary">
+          <a class="active" href="#opportunities">Opportunities</a>
+          <a href="#search">Opportunity Search</a>
+          <a href="#companies">Company Profiles</a>
+          <a href="#qualification">Qualification</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#evidence">Evidence Upload</a>
+        </nav>
+
+        <section class="api-panel" aria-label="API connection">
+          <label for="api-base">API base</label>
+          <div class="api-row">
+            <input id="api-base" type="url" value="http://127.0.0.1:8000" />
+            <button id="refresh-button" type="button">Refresh</button>
+          </div>
+          <p id="api-status" class="status muted">Waiting for data</p>
+        </section>
+
+        <section class="demo-panel" aria-label="Demo environment">
+          <div class="demo-panel-heading">
+            <span>Demo environment</span>
+            <strong id="frontend-version">v13c-company-award</strong>
+          </div>
+          <dl class="demo-facts">
+            <div>
+              <dt>Frontend</dt>
+              <dd id="frontend-source">Detecting</dd>
+            </div>
+            <div>
+              <dt>Dashboard</dt>
+              <dd id="dashboard-url">Detecting</dd>
+            </div>
+            <div>
+              <dt>API target</dt>
+              <dd id="api-target">Detecting</dd>
+            </div>
+            <div>
+              <dt>Data mode</dt>
+              <dd id="data-mode">Sample data</dd>
+            </div>
+          </dl>
+          <p id="demo-note" class="demo-note">Verifying demo environment.</p>
+        </section>
+      </aside>
+
+      <section class="workspace" aria-labelledby="page-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Sprint 8A</p>
+            <h1 id="page-title">Opportunity Review</h1>
+          </div>
+          <div class="top-actions">
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Search title, agency, NAICS"
+              aria-label="Search opportunities"
+            />
+            <select id="status-filter" aria-label="Filter opportunities by status">
+              <option value="all">All statuses</option>
+              <option value="new">New</option>
+              <option value="reviewing">Reviewing</option>
+              <option value="pursuing">Pursuing</option>
+              <option value="no_bid">No bid</option>
+              <option value="drafting">Drafting</option>
+              <option value="submitted">Submitted</option>
+            </select>
+            <select id="recommendation-filter" aria-label="Filter by recommendation">
+              <option value="all">All recommendations</option>
+              <option value="pursue">Pursue</option>
+              <option value="consider">Consider</option>
+              <option value="no_bid">No bid</option>
+              <option value="unscored">Unscored</option>
+            </select>
+            <select id="notice-type-filter" aria-label="Filter by notice type">
+              <option value="all">All notice types</option>
+            </select>
+            <select id="sort-select" aria-label="Sort opportunities">
+              <option value="score-desc">Score: high to low</option>
+              <option value="due-asc">Due date: soonest</option>
+              <option value="agency-asc">Agency: A to Z</option>
+              <option value="title-asc">Title: A to Z</option>
+            </select>
+          </div>
+        </header>
+
+        <section class="metrics" aria-label="Capture summary">
+          <article>
+            <span>Total opportunities</span>
+            <strong id="metric-total">0</strong>
+          </article>
+          <article>
+            <span>Avg score</span>
+            <strong id="metric-average">-</strong>
+          </article>
+          <article>
+            <span>Pursue candidates</span>
+            <strong id="metric-pursue">0</strong>
+          </article>
+          <article>
+            <span>Need review</span>
+            <strong id="metric-review">0</strong>
+          </article>
+        </section>
+
+        <section id="opportunity-search-panel" class="search-panel" aria-labelledby="opportunity-search-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">SAM.gov Search</p>
+              <h2 id="opportunity-search-title">Find Opportunities</h2>
+            </div>
+            <span id="sam-search-status">Preview up to 3 results</span>
+          </div>
+          <div class="search-body">
+            <div class="search-form-grid">
+              <label>
+                Keyword
+                <input id="sam-keyword" type="search" placeholder="cybersecurity, cloud, admin support" />
+              </label>
+              <label>
+                NAICS
+                <input id="sam-naics" type="text" inputmode="numeric" placeholder="541512" />
+              </label>
+              <label>
+                Agency
+                <input id="sam-agency" type="text" placeholder="Department of Energy" />
+              </label>
+              <label>
+                Notice type
+                <select id="sam-notice-type">
+                  <option value="">Any notice type</option>
+                  <option value="RFI">RFI</option>
+                  <option value="RFQ">RFQ</option>
+                  <option value="RFP">RFP</option>
+                  <option value="Sources Sought">Sources Sought</option>
+                </select>
+              </label>
+            </div>
+            <div class="search-actions">
+              <button id="sam-search-button" type="button">Search SAM.gov</button>
+              <button id="sam-clear-button" type="button">Clear search filters</button>
+              <button id="sam-save-button" type="button" disabled>Save results to review queue</button>
+              <span class="status muted">Demo limit: 3 results</span>
+            </div>
+            <p class="search-helper">
+              Search results are temporary live SAM.gov previews. The Review Queue below contains saved
+              capture records and is not deleted when search filters are cleared.
+            </p>
+            <div id="sam-search-results" class="search-results">
+              <p class="empty">Run a search to preview opportunities before adding them to the review queue.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="company-panel" class="search-panel company-panel" aria-labelledby="company-panel-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Company Profile</p>
+              <h2 id="company-panel-title">Add a Company for Qualification</h2>
+            </div>
+            <span>Used by scoring and proposal drafts</span>
+          </div>
+          <form id="company-form" class="search-body">
+            <div class="search-form-grid company-form-grid">
+              <label>
+                Company name
+                <input id="company-name" type="text" required placeholder="Illustris Enterprise LLC" />
+              </label>
+              <label>
+                Website
+                <input id="company-website" type="url" placeholder="https://example.com" />
+              </label>
+              <label>
+                Target NAICS codes
+                <input id="company-naics" type="text" placeholder="541512, 541513" />
+              </label>
+              <label>
+                Target agencies
+                <input id="company-agencies" type="text" placeholder="Department of the Navy, DOE" />
+              </label>
+              <label class="company-wide">
+                Core capabilities
+                <textarea id="company-capabilities" rows="3" placeholder="Cloud modernization, cybersecurity, IT support"></textarea>
+              </label>
+              <label>
+                Certifications and set-asides
+                <input id="company-certifications" type="text" placeholder="CMMC, 8(a), Small Business" />
+              </label>
+              <label class="company-wide">
+                Company description
+                <textarea id="company-description" rows="3" placeholder="Short company profile used in qualification and proposal drafts"></textarea>
+              </label>
+            </div>
+            <div class="search-actions">
+              <button id="company-submit-button" type="submit">Add company profile</button>
+              <span id="company-message" class="status muted">Add a profile, then select it during qualification.</span>
+            </div>
+          </form>
+        </section>
+
+        <section class="content-grid">
+          <section class="opportunity-list" aria-labelledby="opportunity-list-title">
+            <div class="section-heading">
+              <h2 id="opportunity-list-title">Review Queue</h2>
+              <div class="queue-actions">
+                <span id="visible-count">0 shown</span>
+                <button id="reset-demo-queue-button" class="danger-button" type="button">
+                  Reset demo queue
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Opportunity</th>
+                    <th>Type</th>
+                    <th>Agency</th>
+                    <th>Due</th>
+                    <th>Score</th>
+                    <th>Recommendation</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="opportunity-table"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="decision-panel" aria-labelledby="decision-title">
+            <div class="section-heading">
+              <h2 id="decision-title">Opportunity Detail</h2>
+              <span id="selected-id">No selection</span>
+            </div>
+            <div class="detail-tabs" role="tablist" aria-label="Opportunity detail views">
+              <button class="active" type="button" data-tab="overview">Overview</button>
+              <button type="button" data-tab="qualification">Qualification</button>
+              <button type="button" data-tab="workflow">Workflow</button>
+              <button type="button" data-tab="evidence">Evidence</button>
+              <button type="button" data-tab="proposal">Proposal</button>
+              <button type="button" data-tab="source">Source</button>
+            </div>
+            <div id="decision-content" class="decision-content"></div>
+          </aside>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js?v=13c-company-award"></script>
+  </body>
+</html>

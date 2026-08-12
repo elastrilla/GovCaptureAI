@@ -1,0 +1,9 @@
+backend/.env
+backend/venv/
+**/__pycache__/
+**/*.pyc
+.git/
+.codex_tmp/
+outputs/
+.DS_Store
+logs/

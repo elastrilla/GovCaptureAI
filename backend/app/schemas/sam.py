@@ -6,6 +6,7 @@ class SamSearchRequest(BaseModel):
     naics_code: str | None = None
     agency: str | None = None
     set_aside: str | None = None
+    notice_type: str | None = None
     posted_from: str | None = Field(
         default=None,
         description="Start posted date in MM/DD/YYYY format"
@@ -21,11 +22,13 @@ class SamOpportunityResult(BaseModel):
     sam_notice_id: str
     title: str
     solicitation_number: str | None = None
+    notice_type: str | None = None
     agency: str | None = None
     naics_code: str | None = None
     set_aside: str | None = None
     posted_date: str | None = None
     due_date: str | None = None
+    summary: str | None = None
     description: str | None = None
 
 

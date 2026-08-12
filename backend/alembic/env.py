@@ -20,7 +20,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 from app.core.config import settings
 from app.database.base import Base
-from app.models import User, Company, Opportunity
+from app.models import User, Company, Opportunity, Document, Proposal
 
 config.set_main_option("sqlalchemy.url", settings.database_url)
 

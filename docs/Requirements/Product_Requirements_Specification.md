@@ -81,6 +81,7 @@ The system must allow users to search opportunities using:
 - PSC code,
 - agency,
 - date range,
+- notice type such as RFI, RFQ, RFP, or Sources Sought,
 - set-aside status.
 
 ### 8.2 Opportunity Dashboard
@@ -88,6 +89,7 @@ The system must display the following opportunity information:
 - opportunity title,
 - agency,
 - due date,
+- notice type,
 - set-aside type,
 - qualification score,
 - status,
@@ -108,7 +110,63 @@ The system must analyze each opportunity and return:
 - a recommendation to pursue or not pursue,
 - an explanation of the result based on technical fit, certifications, experience, and proposal readiness.
 
-### 8.5 Proposal Generation
+### 8.5 Draft Proposal Generation
+The system must generate an initial draft proposal response using:
+- opportunity details,
+- company profile data,
+- qualification rationale,
+- capability and past-performance document inputs,
+- user-provided drafting instructions.
+
+### 8.6 Proposal Review Workflow
+The system must allow users to manage generated proposal drafts with:
+- persistent draft records,
+- review status,
+- readiness score,
+- review notes,
+- review gaps,
+- latest draft retrieval for each opportunity.
+
+### 8.7 Proposal Export
+The system must allow users to export generated proposal drafts with:
+- opportunity metadata,
+- company context,
+- review status,
+- readiness score,
+- review notes,
+- compliance notes,
+- review gaps,
+- draft response content,
+- a shareable text format suitable for copy/paste into proposal documents.
+
+### 8.8 Demo Deployment
+The system must support a repeatable Docker-based demo environment with:
+- PostgreSQL database service,
+- FastAPI backend service,
+- static dashboard frontend service,
+- automatic database migration on backend startup,
+- documented ports and reset steps.
+
+### 8.9 Demo Server Operations
+The system must support repeatable demo server operation with:
+- project sync instructions,
+- remote Docker startup instructions,
+- health checks for backend and frontend,
+- stop and reset procedures,
+- browser access from a separate workstation.
+
+### 8.10 Client-Facing Sales Package
+The system documentation must support early buyer conversations with:
+- a product one-pager,
+- a repeatable demo script,
+- buyer FAQ content,
+- a concise demo presentation deck,
+- buyer-facing pricing guidance,
+- an editable pricing model,
+- clear explanation of the discovery-to-proposal workflow,
+- positioning that keeps the product focused on capture decisions rather than raw data collection.
+
+### 8.11 Proposal Generation
 The system must generate draft content for common proposal sections, including:
 - executive summary,
 - technical response,
@@ -116,7 +174,7 @@ The system must generate draft content for common proposal sections, including:
 - past performance summary,
 - compliance matrix.
 
-### 8.6 User Management
+### 8.12 User Management
 The system must support:
 - account registration and login,
 - role-based access for administrators and standard users,
