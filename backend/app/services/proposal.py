@@ -129,6 +129,14 @@ def _compliance_notes(company: Company, opportunity: Opportunity, documents: lis
     if not documents:
         notes.append("Attach capability statement, past performance, and key personnel evidence before final review.")
 
+    notes.extend(
+        [
+            "Locate and use the government-provided response template or formatting instructions when one is required.",
+            "Prepare separate Technical Proposal and Cost Proposal volumes, including labor, travel, and other direct cost assumptions as applicable.",
+            "Confirm pink, red, and gold team review gates, required attachments, page limits, and submission portal instructions.",
+        ]
+    )
+
     return notes
 
 
@@ -215,6 +223,9 @@ def generate_proposal_draft(
         "",
         "Past Performance and Evidence",
         past_performance,
+        "",
+        "Cost Proposal Planning",
+        "Develop the cost volume separately from the technical response. Validate labor categories, level of effort, travel, other direct costs, assumptions, and pricing approvals before submission.",
         "",
         "Compliance Notes",
         *[f"- {note}" for note in compliance_notes],

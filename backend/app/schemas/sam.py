@@ -16,6 +16,10 @@ class SamSearchRequest(BaseModel):
         description="End posted date in MM/DD/YYYY format"
     )
     limit: int = Field(default=10, ge=1, le=100)
+    company_id: int | None = Field(
+        default=None,
+        description="Company profile used when saving and auto-scoring results",
+    )
 
 
 class SamOpportunityResult(BaseModel):

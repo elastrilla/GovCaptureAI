@@ -1,5 +1,6 @@
 from app.core.config import settings
 from app.sam.client import search_sam_live
+from app.sam.client import split_filter_values
 from app.schemas.sam import SamSearchRequest, SamOpportunityResult, SamSearchResponse
 
 
@@ -36,24 +37,28 @@ def search_sam_mock(search_request: SamSearchRequest) -> SamSearchResponse:
     filtered_results = mock_results
 
     if search_request.keyword:
-        keyword = search_request.keyword.lower()
+        keywords = [term.lower() for term in split_filter_values(search_request.keyword)]
         filtered_results = [
             result for result in filtered_results
-            if keyword in result.title.lower()
-            or keyword in (result.description or "").lower()
+            if any(
+                keyword in result.title.lower()
+                or keyword in (result.description or "").lower()
+                for keyword in keywords
+            )
         ]
 
     if search_request.naics_code:
+        naics_codes = set(split_filter_values(search_request.naics_code))
         filtered_results = [
             result for result in filtered_results
-            if result.naics_code == search_request.naics_code
+            if result.naics_code in naics_codes
         ]
 
     if search_request.agency:
-        agency = search_request.agency.lower()
+        agencies = [term.lower() for term in split_filter_values(search_request.agency)]
         filtered_results = [
             result for result in filtered_results
-            if agency in (result.agency or "").lower()
+            if any(agency in (result.agency or "").lower() for agency in agencies)
         ]
 
     if search_request.set_aside:
@@ -64,11 +69,13 @@ def search_sam_mock(search_request: SamSearchRequest) -> SamSearchResponse:
         ]
 
     if search_request.notice_type:
-        notice_type = search_request.notice_type.lower()
+        notice_types = [term.lower() for term in split_filter_values(search_request.notice_type)]
         filtered_results = [
             result for result in filtered_results
-            if notice_type in (result.notice_type or "").lower()
+            if any(notice_type in (result.notice_type or "").lower() for notice_type in notice_types)
         ]
+
+    filtered_results = filtered_results[: search_request.limit]
 
     return SamSearchResponse(
         source="mock_sam_service",
