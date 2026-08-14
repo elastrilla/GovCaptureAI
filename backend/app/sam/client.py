@@ -6,6 +6,13 @@ from app.core.config import settings
 from app.schemas.sam import SamSearchRequest, SamOpportunityResult, SamSearchResponse
 
 
+def split_filter_values(value: str | None) -> list[str]:
+    """Normalize comma-separated dashboard filters into distinct terms."""
+    if not value:
+        return []
+    return [term.strip() for term in value.split(",") if term.strip()]
+
+
 def _default_posted_dates() -> tuple[str, str]:
     posted_to = date.today()
     posted_from = posted_to - timedelta(days=30)
@@ -196,53 +203,55 @@ def search_sam_live(search_request: SamSearchRequest) -> SamSearchResponse:
         )
 
     default_posted_from, default_posted_to = _default_posted_dates()
+    keyword_terms = split_filter_values(search_request.keyword) or [None]
+    naics_terms = split_filter_values(search_request.naics_code) or [None]
+    results_by_notice_id: dict[str, SamOpportunityResult] = {}
 
-    params = {
-        "api_key": settings.SAM_API_KEY,
-        "limit": search_request.limit,
-        "offset": 0,
-        "postedFrom": search_request.posted_from or default_posted_from,
-        "postedTo": search_request.posted_to or default_posted_to,
-    }
+    for keyword in keyword_terms:
+        for naics_code in naics_terms:
+            params = {
+                "api_key": settings.SAM_API_KEY,
+                "limit": search_request.limit,
+                "offset": 0,
+                "postedFrom": search_request.posted_from or default_posted_from,
+                "postedTo": search_request.posted_to or default_posted_to,
+            }
 
-    if search_request.keyword:
-        params["title"] = search_request.keyword
+            if keyword:
+                params["title"] = keyword
+            if naics_code:
+                params["ncode"] = naics_code
+            if search_request.set_aside:
+                params["typeOfSetAside"] = search_request.set_aside
 
-    if search_request.naics_code:
-        params["ncode"] = search_request.naics_code
+            response = requests.get(
+                settings.SAM_API_BASE_URL,
+                params=params,
+                timeout=30,
+            )
+            response.raise_for_status()
 
-    if search_request.set_aside:
-        params["typeOfSetAside"] = search_request.set_aside
+            for item in _extract_opportunities_data(response.json()):
+                result = parse_sam_opportunity(item)
+                results_by_notice_id[result.sam_notice_id] = result
 
-    response = requests.get(
-        settings.SAM_API_BASE_URL,
-        params=params,
-        timeout=30,
-    )
+    parsed_results = list(results_by_notice_id.values())
 
-    response.raise_for_status()
-
-    data = response.json()
-    raw_results = _extract_opportunities_data(data)
-
-    parsed_results = [
-        parse_sam_opportunity(item)
-        for item in raw_results
-    ]
-
-    if search_request.agency:
-        agency_filter = search_request.agency.lower()
+    agency_terms = [term.lower() for term in split_filter_values(search_request.agency)]
+    if agency_terms:
         parsed_results = [
             result for result in parsed_results
-            if agency_filter in (result.agency or "").lower()
+            if any(term in (result.agency or "").lower() for term in agency_terms)
         ]
 
-    if search_request.notice_type:
-        notice_type_filter = search_request.notice_type.lower()
+    notice_type_terms = [term.lower() for term in split_filter_values(search_request.notice_type)]
+    if notice_type_terms:
         parsed_results = [
             result for result in parsed_results
-            if notice_type_filter in (result.notice_type or "").lower()
+            if any(term in (result.notice_type or "").lower() for term in notice_type_terms)
         ]
+
+    parsed_results = parsed_results[: search_request.limit]
 
     return SamSearchResponse(
         source="sam_gov_live",

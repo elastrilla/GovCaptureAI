@@ -2,7 +2,7 @@
 set -eu
 
 DEMO_HOST="${1:-${DEMO_HOST:-192.168.1.51}}"
-EXPECTED_FRONTEND_VERSION="${EXPECTED_FRONTEND_VERSION:-13c-company-award}"
+EXPECTED_FRONTEND_VERSION="${EXPECTED_FRONTEND_VERSION:-14a-search-queue}"
 
 check_url() {
   label="$1"

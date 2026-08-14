@@ -1,14 +1,17 @@
 from datetime import date, datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.database.session import get_db
 from app.models.opportunity import Opportunity
+from app.models.company import Company
+from app.models.document import Document
 from app.sam.client import test_sam_api_connection
 from app.sam.service import search_sam_opportunities
 from app.schemas.sam import SamSearchRequest, SamSearchResponse
+from app.services.qualification import generate_qualification_assessment
 
 
 router = APIRouter(prefix="/sam", tags=["SAM.gov"])
@@ -70,13 +73,31 @@ def _build_opportunity_from_result(result):
     )
 
 
-def _save_sam_search_results(db: Session, search_response: SamSearchResponse):
+def _save_sam_search_results(
+    db: Session,
+    search_response: SamSearchResponse,
+    company_id: int | None = None,
+):
     saved_count = 0
     skipped_count = 0
     skipped_award_count = 0
+    auto_scored_count = 0
     saved_opportunities = []
 
     with db.begin():
+        company = None
+        documents = []
+        if company_id is not None:
+            company = db.query(Company).filter(Company.id == company_id).first()
+            if not company:
+                raise HTTPException(status_code=404, detail="Company not found")
+            documents = (
+                db.query(Document)
+                .filter(Document.company_id == company.id)
+                .order_by(Document.id)
+                .all()
+            )
+
         for result in search_response.results:
             if _is_award_notice(result.notice_type):
                 skipped_award_count += 1
@@ -93,6 +114,18 @@ def _save_sam_search_results(db: Session, search_response: SamSearchResponse):
                 continue
 
             db_opportunity = _build_opportunity_from_result(result)
+
+            if company:
+                (
+                    db_opportunity.qualification_score,
+                    db_opportunity.qualification_recommendation,
+                    db_opportunity.qualification_rationale,
+                ) = generate_qualification_assessment(
+                    company,
+                    db_opportunity,
+                    documents,
+                )
+                auto_scored_count += 1
 
             db.add(db_opportunity)
             db.flush()
@@ -111,6 +144,7 @@ def _save_sam_search_results(db: Session, search_response: SamSearchResponse):
         "saved_count": saved_count,
         "skipped_existing_count": skipped_count,
         "skipped_award_notice_count": skipped_award_count,
+        "auto_scored_count": auto_scored_count,
         "saved_opportunities": saved_opportunities,
     }
 
@@ -140,4 +174,8 @@ def sam_search_and_save(
     db: Session = Depends(get_db),
 ):
     search_response = search_sam_opportunities(search_request)
-    return _save_sam_search_results(db, search_response)
+    return _save_sam_search_results(
+        db,
+        search_response,
+        company_id=search_request.company_id,
+    )

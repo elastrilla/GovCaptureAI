@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="govcaptureai-build" content="13c-company-award" />
+    <meta name="govcaptureai-build" content="14a-search-queue" />
     <title>GovCaptureAI Dashboard</title>
-    <link rel="stylesheet" href="./styles.css?v=13c-company-award" />
+    <link rel="stylesheet" href="./styles.css?v=14a-search-queue" />
   </head>
   <body>
     <main class="shell">
@@ -39,7 +39,7 @@
         <section class="demo-panel" aria-label="Demo environment">
           <div class="demo-panel-heading">
             <span>Demo environment</span>
-            <strong id="frontend-version">v13c-company-award</strong>
+            <strong id="frontend-version">v13c-fit-score-weights</strong>
           </div>
           <dl class="demo-facts">
             <div>
@@ -129,7 +129,7 @@
               <p class="eyebrow">SAM.gov Search</p>
               <h2 id="opportunity-search-title">Find Opportunities</h2>
             </div>
-            <span id="sam-search-status">Preview up to 3 results</span>
+            <span id="sam-search-status">Preview up to 15 results</span>
           </div>
           <div class="search-body">
             <div class="search-form-grid">
@@ -160,7 +160,16 @@
               <button id="sam-search-button" type="button">Search SAM.gov</button>
               <button id="sam-clear-button" type="button">Clear search filters</button>
               <button id="sam-save-button" type="button" disabled>Save results to review queue</button>
-              <span class="status muted">Demo limit: 3 results</span>
+              <span class="status muted">Demo limit: 15 results</span>
+            </div>
+            <div class="search-history-row">
+              <label>
+                Recent searches
+                <select id="sam-search-history" aria-label="Load a recent SAM.gov search">
+                  <option value="">No saved searches</option>
+                </select>
+              </label>
+              <button id="sam-clear-history-button" type="button">Clear search memory</button>
             </div>
             <p class="search-helper">
               Search results are temporary live SAM.gov previews. The Review Queue below contains saved
@@ -266,6 +275,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=13c-company-award"></script>
+    <script src="./app.js?v=14a-search-queue"></script>
   </body>
 </html>

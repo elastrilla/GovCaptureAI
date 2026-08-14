@@ -95,6 +95,9 @@ def create_company_document(
         document_type=document.document_type,
         title=document.title,
         filename=document.filename,
+        mime_type=document.mime_type,
+        file_size=document.file_size,
+        file_data=document.file_data,
         content_text=document.content_text,
         notes=document.notes,
     )

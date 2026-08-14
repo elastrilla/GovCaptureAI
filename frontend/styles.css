@@ -391,6 +391,43 @@ h2 {
   line-height: 1.45;
 }
 
+.search-history-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+}
+
+.search-history-row label {
+  display: grid;
+  min-width: min(360px, 100%);
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.search-history-row select {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.search-history-row button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  padding: 10px 12px;
+  font: inherit;
+  font-weight: 800;
+}
+
 .search-results {
   display: grid;
   gap: 10px;
@@ -752,248 +789,4 @@ tbody tr.selected {
 .evidence-form-grid label {
   display: grid;
   gap: 6px;
-  color: var(--muted);
-  font-size: 0.84rem;
-  font-weight: 800;
-}
-
-.evidence-form-grid input,
-.evidence-form-grid select,
-.evidence-form-grid textarea {
-  min-width: 0;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--ink);
-  padding: 9px 10px;
-  font: inherit;
-}
-
-.evidence-wide {
-  grid-column: 1 / -1;
-}
-
-.evidence-list-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.evidence-list-heading span {
-  color: var(--muted);
-  font-size: 0.86rem;
-}
-
-.evidence-list {
-  display: grid;
-  gap: 10px;
-}
-
-.evidence-card {
-  display: grid;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-}
-
-.evidence-card h4 {
-  margin: 8px 0 0;
-  font-size: 1rem;
-}
-
-.evidence-card p {
-  margin: 0;
-  line-height: 1.5;
-}
-
-.workflow-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 10px;
-}
-
-.proposal-action-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-}
-
-.proposal-action-row select {
-  flex: 1 1 180px;
-}
-
-.proposal-action-row button {
-  flex: 1 1 130px;
-}
-
-.workflow-row select,
-.workflow-row input,
-.workflow-row button {
-  min-height: 40px;
-  border-radius: 8px;
-  font: inherit;
-}
-
-.workflow-row select,
-.workflow-row input {
-  min-width: 0;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--ink);
-  padding: 9px 10px;
-}
-
-.workflow-row button {
-  border: 0;
-  background: var(--sidebar);
-  color: #fff;
-  font-weight: 800;
-  padding: 9px 14px;
-}
-
-.workflow-row button:disabled {
-  cursor: not-allowed;
-  background: #b8c4bd;
-}
-
-.workflow-row.single-action {
-  grid-template-columns: auto;
-  justify-content: start;
-}
-
-.proposal-instructions {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: var(--ink);
-  resize: vertical;
-}
-
-.proposal-review-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 160px;
-  gap: 10px;
-}
-
-.proposal-review-grid label,
-.workflow-section label {
-  display: grid;
-  gap: 6px;
-  color: var(--muted);
-  font-size: 0.84rem;
-  font-weight: 800;
-}
-
-.proposal-review-grid select,
-.proposal-review-grid input {
-  min-height: 40px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--ink);
-  padding: 9px 10px;
-  font: inherit;
-}
-
-.proposal-draft {
-  display: grid;
-  gap: 10px;
-}
-
-.proposal-draft-header {
-  display: flex;
-  align-items: center;
-}
-
-.proposal-draft-header h3 {
-  margin: 0;
-}
-
-.proposal-draft pre {
-  margin: 0;
-  max-height: 520px;
-  overflow: auto;
-  white-space: pre-wrap;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fbfdfb;
-  padding: 14px;
-  font-family: "Aptos", "Segoe UI", sans-serif;
-  line-height: 1.5;
-}
-
-.empty {
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-@media (max-width: 980px) {
-  .shell {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    min-height: auto;
-  }
-
-  .content-grid,
-  .search-form-grid,
-  .metrics {
-    grid-template-columns: 1fr;
-  }
-
-  .search-result-card {
-    grid-template-columns: 1fr;
-  }
-
-  .topbar {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .top-actions {
-    justify-content: stretch;
-  }
-
-  .top-actions input,
-  .top-actions select {
-    flex: 1;
-  }
-}
-
-@media (max-width: 620px) {
-  .workspace,
-  .sidebar {
-    padding: 20px;
-  }
-
-  .api-row,
-  .top-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .top-actions input {
-    min-width: 0;
-  }
-
-  .field-grid,
-  .detail-tabs,
-  .evidence-form-grid,
-  .workflow-row {
-    grid-template-columns: 1fr;
-  }
-
-  .proposal-review-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .proposal-draft-header {
-    align-items: stretch;
-    flex-direction: column;
-  }
-}
+  color: va
